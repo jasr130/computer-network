@@ -100,12 +100,12 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 	if (ip_hdr->ip_len < 20)
 		return;
 	/*verify ip header checksum*/
-	uint16 Tip_sum = ip_hdr->sum;
-	ip_hdr->sum = 0;
-	uint16 Nip_sum = cksum(ip_hdr, ip_hdr->ip_hl * 4);
+	uint16_t Tip_sum = ip_hdr->ip_sum;
+	ip_hdr->ip_sum = 0;
+	uint16_t Nip_sum = cksum(ip_hdr, ip_hdr->ip_hl * 4);
 	if (Nip_sum != Tip_sum)
 		return;
-	ip_hdr->sum = Tip_sum;
+	ip_hdr->sum_ip = Tip_sum;
 	
 	/*check if the destined IP is one of the router's interface*/
 	if (sr_get_intf_ip(sr, ip_hdr->ip_dst)){
@@ -145,8 +145,8 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 		}
 		
 		/*recalculate IP checksum*/
-		ip_hdr->sum = 0;
-		ip_hdr->sum = cksum(ip_hdr, ip_hdr->ip_hl * 4);
+		ip_hdr->ip_sum = 0;
+		ip_hdr->ip_sum = cksum(ip_hdr, ip_hdr->ip_hl * 4);
 		
 		struct sr_rt *routetable = longest_matching_prefix_ip(sr, ip_hdr->ip_dst);
 		if (!routetable)  /*there is a non-existent route to the destination IP*/
@@ -176,7 +176,7 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 	
 
 	/*find the longest prefix match of the IP address*/
-	struct sr_rt *routetable = longest_matching_prefix(sr, ip_hdr->ip_src);
+	struct sr_rt *routetable = longest_matching_prefix_ip(sr, ip_hdr->ip_src);
 	/*get the interface of the route table*/
 	struct sr_if *sending_intf = sr_get_interface(sr, routetable->interface);
 	
