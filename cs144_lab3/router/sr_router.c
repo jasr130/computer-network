@@ -306,7 +306,7 @@ void handle_arp_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
 			memcpy(arprep_arp_hdr->ar_tha, arp_hdr->ar_sha, ETHER_ADDR_LEN); 
 			arprep_arp_hdr->ar_tip = arp_hdr->ar_sip;                        
 
-			sr_send_packet(sr, arp_rep, len, interface->name);
+			sr_send_packet(sr, arp_rep, len, interface);
 			free(packet);
 		}
 		else if (ntohs(arp_hdr->ar_op) == arp_op_reply){
@@ -382,10 +382,10 @@ void handle_arpreq(struct sr_instance *sr, struct sr_arpreq *req){
 		if (req->times_sent >= 5){
 			/* Send ICMP message back to sender */
 			struct sr_packet *packet = req->packets;
-			sr_ethernet_hdr_t *packet_ehdr;
+			/*sr_ethernet_hdr_t *packet_ehdr;*/
 			while (packet)
 			{
-				packet_ehdr = (sr_ethernet_hdr_t *)(packet->buf);
+				/*packet_ehdr = (sr_ethernet_hdr_t *)(packet->buf);*/
 				send_icmp_msg(sr, packet->buf, packet->len, (uint8_t)3, (uint8_t)1);
 				packet = packet->next;
 			}
