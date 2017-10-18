@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "sr_if.h"
 #include "sr_rt.h"
@@ -171,7 +172,7 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 
 /*send ICMP message*/
 void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, uint8_t type, uint8_t code){
-	sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *)packet;
+	/*sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *)packet*/
 	sr_ip_hdr_t *ip_hdr = (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
 	
 
@@ -263,7 +264,7 @@ void send_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len, stru
 		memcpy(eth_hdr->ether_shost, interface->addr, ETHER_ADDR_LEN); 
 		memcpy(eth_hdr->ether_dhost, entry->mac, ETHER_ADDR_LEN);     
 		sr_send_packet(sr, packet, len, interface->name);
-		free£¨packet£©;
+		free(packet)
 	}
 
 }
