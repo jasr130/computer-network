@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-
+#include <string.h>
 
 #include "sr_if.h"
 #include "sr_rt.h"
@@ -105,7 +105,7 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 	uint16_t Nip_sum = cksum(ip_hdr, ip_hdr->ip_hl * 4);
 	if (Nip_sum != Tip_sum)
 		return;
-	ip_hdr->sum_ip = Tip_sum;
+	ip_hdr->ip_sum = Tip_sum;
 	
 	/*check if the destined IP is one of the router's interface*/
 	if (sr_get_intf_ip(sr, ip_hdr->ip_dst)){
@@ -201,7 +201,7 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		/*check the whether the MAC address in the cache*/
 		struct sr_arpentry *entry = sr_arpcache_lookup(&sr->cache, routetable->gw.s_addr);
 		if (entry == NULL)
-			queue_arp_request(sr, packet, len, sending_intf, route->gw.s_addr);
+			queue_arp_request(sr, packet, len, sending_intf, routetable->gw.s_addr);
 		else
 			send_packet(sr, packet, len, sending_intf, entry);
 
