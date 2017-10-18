@@ -264,7 +264,7 @@ void send_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len, stru
 		memcpy(eth_hdr->ether_shost, interface->addr, ETHER_ADDR_LEN); 
 		memcpy(eth_hdr->ether_dhost, entry->mac, ETHER_ADDR_LEN);     
 		sr_send_packet(sr, packet, len, interface->name);
-		free(packet);
+		/*free(packet);*/
 	}
 
 
@@ -272,7 +272,7 @@ void send_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len, stru
 void queue_arp_request(struct sr_instance *sr, uint8_t *packet, unsigned int len, struct sr_if *interface, uint32_t dest_ip){
 	struct sr_arpreq *req = sr_arpcache_queuereq(&sr->cache, dest_ip, packet, len, interface->name);
 	handle_arpreq(sr, req);
-	free(packet);
+	/*free(packet);*/
 }
 
 void handle_arp_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len, char *interface){
@@ -307,7 +307,7 @@ void handle_arp_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
 			arprep_arp_hdr->ar_tip = arp_hdr->ar_sip;                        
 
 			sr_send_packet(sr, arp_rep, len, interface);
-			free(packet);
+			/*free(packet);*/
 		}
 		else if (ntohs(arp_hdr->ar_op) == arp_op_reply){
 			/*find the request of the arp reply and update the entry*/
@@ -422,7 +422,7 @@ void handle_arpreq(struct sr_instance *sr, struct sr_arpreq *req){
 				
 				curr_intf = curr_intf->next;
 			}
-			free(arp_packet);
+			/*free(arp_packet);*/
 			/*reset request*/
 			req->sent = now;
 			req->times_sent++;
