@@ -68,29 +68,29 @@ void sr_init(struct sr_instance* sr)
  *---------------------------------------------------------------------*/
 
 void sr_handlepacket(struct sr_instance* sr,
-        uint8_t * packet/* lent */,
-        unsigned int len,
-        char* interface/* lent */)
+	uint8_t * packet/* lent */,
+	unsigned int len,
+	char* interface/* lent */)
 {
-  /* REQUIRES */
-  assert(sr);
-  assert(packet);
-  assert(interface);
+	/* REQUIRES */
+	assert(sr);
+	assert(packet);
+	assert(interface);
 
-  printf("*** -> Received packet of length %d \n",len);
+	printf("*** -> Received packet of length %d \n", len);
 
- /*check if the length meet the minimum require*/
-  if (len >= sizeof(sr_ethernet_hdr_t))
-  {
-	  if (ethertype(packet) == ethertype_ip)   /*handle ip packet*/;
-	  {
-		  handle_ip_packet(sr, packet, len, interface);
-	  }
-	  else if (ethertype(packet) == ethertype_arp)	 /*handle arp packet*/;
-	  {
-		  handle_arp_packet(sr, packet, len, interface);
-	  }	  
-  }
+	/*check if the length meet the minimum require*/
+	if (len >= sizeof(sr_ethernet_hdr_t))
+	{
+		if (ethertype(packet) == ethertype_ip)   /*handle ip packet*/
+		{
+			handle_ip_packet(sr, packet, len, interface);
+		}
+		else if (ethertype(packet) == ethertype_arp)	 /*handle arp packet*/
+		{
+			handle_arp_packet(sr, packet, len, interface);
+		}
+	}
 
 }
 
@@ -264,7 +264,7 @@ void send_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len, stru
 		memcpy(eth_hdr->ether_shost, interface->addr, ETHER_ADDR_LEN); 
 		memcpy(eth_hdr->ether_dhost, entry->mac, ETHER_ADDR_LEN);     
 		sr_send_packet(sr, packet, len, interface->name);
-		free(packet)
+		free(packet);
 	}
 
 }
