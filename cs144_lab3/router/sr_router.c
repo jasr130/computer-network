@@ -267,7 +267,7 @@ void send_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len, stru
 		free(packet);
 	}
 
-}
+
 /*queue the arp request */
 void queue_arp_request(struct sr_instance *sr, uint8_t *packet, unsigned int len, struct sr_if *interface, uint32_t dest_ip){
 	struct sr_arpreq *req = sr_arpcache_queuereq(&sr->cache, dest_ip, packet, len, interface->name);
