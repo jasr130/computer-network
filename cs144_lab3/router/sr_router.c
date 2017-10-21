@@ -185,7 +185,7 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 
 /*send ICMP message*/
 void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, uint8_t type, uint8_t code){
-	sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *)packet*/
+	sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *)packet;
 	sr_ip_hdr_t *ip_hdr = (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
 	
 
@@ -261,7 +261,7 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		new_icmp_hdr->icmp_sum = cksum(new_icmp_hdr, sizeof(sr_icmp_t3_hdr_t));
 
 		/*send the ICMP packet*/
-		sr_send_packet(sr, packet, len, interface->name);
+		sr_send_packet(sr, new_packet, new_len, interface->name);
 
 		/*struct sr_arpentry *entry = sr_arpcache_lookup(&sr->cache, routetable->gw.s_addr);
 		if (entry == NULL)
