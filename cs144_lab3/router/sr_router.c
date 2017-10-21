@@ -151,7 +151,6 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 		/* Decrement TTL and check if TTL bigger than 0*/
 		printf("*** -> Received packet of TTL %d \n", ip_hdr->ip_ttl);
 		ip_hdr->ip_ttl--;
-		printf("*** -> Received packet of TTL after decresing %d \n", ip_hdr->ip_ttl);
 		if (ip_hdr->ip_ttl <= 0)
 		{
 			printf("*** -> packet TTL equals or smaller than 0 \n");
@@ -223,7 +222,7 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 
 	}
 	else if ((type == 3) || (type == 11)){     /*Destination unreachable or Time exceeded*/
-		
+		printf("*** -> Sending ICMP type %d, code %d\n", type,code);
 		uint8_t *new_packet = malloc(sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_t3_hdr_t));  /*create a new packet*/
 		int new_len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_t3_hdr_t);
 		sr_ethernet_hdr_t *new_eth_hdr = (sr_ethernet_hdr_t *)new_packet;
@@ -238,7 +237,7 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		new_ip_hdr->ip_hl = sizeof(sr_ip_hdr_t) / 4; 
 		new_ip_hdr->ip_tos = 0;
 		new_ip_hdr->ip_len = htons(sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_t3_hdr_t));
-		new_ip_hdr->ip_id = 0;
+		new_ip_hdr->ip_id = htons(0);
 		new_ip_hdr->ip_off = htons(IP_DF);
 		new_ip_hdr->ip_ttl = 255;
 		new_ip_hdr->ip_p = ip_protocol_icmp;
