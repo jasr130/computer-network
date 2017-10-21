@@ -74,7 +74,7 @@ void queue_arp_request(struct sr_instance *, uint8_t *, unsigned int, struct sr_
 void send_icmp_msg(struct sr_instance *, uint8_t *, unsigned int, uint8_t, uint8_t);
 void handle_ip_packet(struct sr_instance *, uint8_t *, unsigned int, char *);
 void handle_arp_packet(struct sr_instance *, uint8_t *, unsigned int, char *);
-struct sr_rt *longest_matching_prefix_ip(struct sr_instance *, uint32_t);
+struct sr_rt *matching_prefix_ip(struct sr_instance *, uint32_t);
 int sr_get_intf_ip(struct sr_instance*, uint32_t);
 void handle_arpreq(struct sr_instance *, struct sr_arpreq *);
 

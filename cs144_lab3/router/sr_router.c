@@ -162,7 +162,7 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 		ip_hdr->ip_sum = 0;
 		ip_hdr->ip_sum = cksum(ip_hdr, ip_hdr->ip_hl * 4);
 		
-		struct sr_rt *routetable = longest_matching_prefix_ip(sr, ip_hdr->ip_dst);
+		struct sr_rt *routetable = matching_prefix_ip(sr, ip_hdr->ip_dst);
 		if (!routetable)  /*there is a non-existent route to the destination IP*/
 		{
 			send_icmp_msg(sr, packet, len, (uint8_t)3, (uint8_t)0);
@@ -190,7 +190,7 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 	
 
 	/*find the longest prefix match of the IP address*/
-	struct sr_rt *routetable = longest_matching_prefix_ip(sr, ip_hdr->ip_src);
+	struct sr_rt *routetable = matching_prefix_ip(sr, ip_hdr->ip_src);
 	/*get the interface of the route table*/
 	struct sr_if *sending_intf = sr_get_interface(sr, routetable->interface);
 	
@@ -350,7 +350,7 @@ void handle_arp_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
 	}
 
 
-struct sr_rt *longest_matching_prefix_ip(struct sr_instance *sr, uint32_t ip)
+struct sr_rt *matching_prefix_ip(struct sr_instance *sr, uint32_t ip)
 {
 	struct sr_rt *matching_rt = NULL;
 
