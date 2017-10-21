@@ -136,10 +136,10 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 			}
 				
 			/*send ICMP message back to sender*/
-			send_icmp_msg(sr, packet, len, (uint8_t)0, (uint8_t)0);
+			send_icmp_msg(sr, packet, len, (uint8_t)0, (uint8_t)0, interface);
 			}
 		else if (1){  /*the packet is tcp or udp, drop it and send ICMP message, type 3, code */
-			send_icmp_msg(sr, packet, len, (uint8_t)3, (uint8_t)3);
+			send_icmp_msg(sr, packet, len, (uint8_t)3, (uint8_t)3, interface);
 			}
 			
 	}
@@ -154,7 +154,7 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 		if (ip_hdr->ip_ttl <= 0)
 		{
 			printf("*** -> packet TTL equals or smaller than 0 \n");
-			send_icmp_msg(sr, packet, len, (uint8_t)11, (uint8_t)0);
+			send_icmp_msg(sr, packet, len, (uint8_t)11, (uint8_t)0, interface);
 			return;
 		}
 		
@@ -165,7 +165,7 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 		struct sr_rt *routetable = matching_prefix_ip(sr, ip_hdr->ip_dst);
 		if (!routetable)  /*there is a non-existent route to the destination IP*/
 		{
-			send_icmp_msg(sr, packet, len, (uint8_t)3, (uint8_t)0);
+			send_icmp_msg(sr, packet, len, (uint8_t)3, (uint8_t)0, interface);
 			return;
 		}
 
@@ -184,7 +184,7 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 }
 
 /*send ICMP message*/
-void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, uint8_t type, uint8_t code){
+void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, uint8_t type, uint8_t code, char *interface){
 	sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *)packet;
 	sr_ip_hdr_t *ip_hdr = (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
 	
@@ -397,16 +397,18 @@ int sr_get_intf_ip(struct sr_instance *sr, uint32_t ip)
 void handle_arpreq(struct sr_instance *sr, struct sr_arpreq *req){
 	time_t now = time(NULL);
 	/* every second, check the arp request*/
-	if (difftime(now, req->sent) > 1.0){
+	if (difftime(now, req->sent) >= 1.0){
 		/* it the request has been sent than 5 times*/
 		if (req->times_sent >= 5){
 			/* Send ICMP message back to sender */
 			struct sr_packet *packet = req->packets;
+			char *interface = packet->iface;
+
 			/*sr_ethernet_hdr_t *packet_ehdr;*/
 			while (packet)
 			{
 				/*packet_ehdr = (sr_ethernet_hdr_t *)(packet->buf);*/
-				send_icmp_msg(sr, packet->buf, packet->len, (uint8_t)3, (uint8_t)1);
+				send_icmp_msg(sr, packet->buf, packet->len, (uint8_t)3, (uint8_t)1, interface);
 				packet = packet->next;
 			}
 			sr_arpreq_destroy(&sr->cache, req);
