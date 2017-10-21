@@ -244,11 +244,10 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		new_ip_hdr->ip_off = htons(IP_DF);
 		new_ip_hdr->ip_ttl = 255;
 		new_ip_hdr->ip_p = ip_protocol_icmp;
-		new_ip_hdr->ip_sum = 0;
-		new_ip_hdr->ip_sum = cksum(new_ip_hdr, sizeof(sr_ip_hdr_t));
 		new_ip_hdr->ip_dst = ip_hdr->ip_src; /*send the packet to where it comes from*/
 		new_ip_hdr->ip_src = intf->ip;
-	
+		new_ip_hdr->ip_sum = 0;
+		new_ip_hdr->ip_sum = cksum(new_ip_hdr, sizeof(sr_ip_hdr_t));
 
 		/*init ICMP header*/
 		new_icmp_hdr->icmp_type = type;
