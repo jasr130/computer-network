@@ -229,9 +229,10 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		sr_ip_hdr_t *new_ip_hdr = (sr_ip_hdr_t *)(new_packet + sizeof(sr_ethernet_hdr_t));
 		sr_icmp_t3_hdr_t *new_icmp_hdr = (sr_icmp_t3_hdr_t *)(new_packet + sizeof(sr_ethernet_hdr_t) + (ip_hdr->ip_hl * 4));
 
+		struct sr_if *intf = sr_get_interface(sr, interface);
 		/*init ethernet header*/
 		new_eth_hdr->ether_type = htons(ethertype_ip);
-		memcpy(new_eth_hdr->ether_shost, interface->addr, ETHER_ADDR_LEN);
+		memcpy(new_eth_hdr->ether_shost, intf->addr, ETHER_ADDR_LEN);
 		memcpy(new_eth_hdr->ether_dhost, eth_hdr->ether_shost, ETHER_ADDR_LEN);
 	
 		/* Init IP header*/
@@ -246,9 +247,8 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		new_ip_hdr->ip_sum = 0;
 		new_ip_hdr->ip_sum = cksum(new_ip_hdr, sizeof(sr_ip_hdr_t));
 		new_ip_hdr->ip_dst = ip_hdr->ip_src; /*send the packet to where it comes from*/
-		if (code == 3) /* Port unreachable*/
-		new_ip_hdr->ip_src = ip_hdr->ip_dst;
-		else new_ip_hdr->ip_src = sending_intf->ip;
+		new_ip_hdr->ip_src = intf->ip;
+	
 
 		/*init ICMP header*/
 		new_icmp_hdr->icmp_type = type;
@@ -261,7 +261,7 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		new_icmp_hdr->icmp_sum = cksum(new_icmp_hdr, sizeof(sr_icmp_t3_hdr_t));
 
 		/*send the ICMP packet*/
-		sr_send_packet(sr, new_packet, new_len, interface->name);
+		sr_send_packet(sr, new_packet, new_len, interface);
 
 		/*struct sr_arpentry *entry = sr_arpcache_lookup(&sr->cache, routetable->gw.s_addr);
 		if (entry == NULL)
