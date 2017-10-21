@@ -84,10 +84,12 @@ void sr_handlepacket(struct sr_instance* sr,
 	{
 		if (ethertype(packet) == ethertype_ip)   /*handle ip packet*/
 		{
+			printf("*** -> Received packet ip packet \n");
 			handle_ip_packet(sr, packet, len, interface);
 		}
 		else if (ethertype(packet) == ethertype_arp)	 /*handle arp packet*/
 		{
+			printf("*** -> Received packet arp packet \n");
 			handle_arp_packet(sr, packet, len, interface);
 		}
 	}
@@ -110,21 +112,29 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 	
 	/*check if the destined IP is one of the router's interface*/
 	if (sr_get_intf_ip(sr, ip_hdr->ip_dst)){
+		printf("*** -> packet's ip destination is my interface's ip \n");
 	/*the packet is destined to the router
 	  check whether the packet is a ICMP*/
 		if ((ip_hdr->ip_p) == ip_protocol_icmp){
+			printf("*** -> it's a ICMP echo packet \n");
 			/*chec if the length meet the minimum require*/
 			int minsize_icmp = sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_hdr_t);
-			if (len < minsize_icmp)
-				return;
+			if (len < minsize_icmp){
+				printf("*** -> Received packet doesn't meet minimum length \n");
+				return; 
+			}
+				
 			/*verify ICMP header checksum*/
 			sr_icmp_hdr_t *icmp_hdr = (sr_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
 			uint16_t Oicmp_sum = icmp_hdr->icmp_sum;
 			icmp_hdr->icmp_sum = 0;
 			uint16_t Nicmp_sum = cksum(icmp_hdr, ntohs(ip_hdr->ip_len) - (ip_hdr->ip_hl * 4));
 			icmp_hdr->icmp_sum = Oicmp_sum;
-			if (Oicmp_sum != Nicmp_sum)
+			if (Oicmp_sum != Nicmp_sum){
+				printf("*** -> Received packet checksum fails \n");
 				return;
+			}
+				
 			/*send ICMP message back to sender*/
 			send_icmp_msg(sr, packet, len, (uint8_t)0, (uint8_t)0);
 			}
@@ -135,12 +145,14 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 	}
 	else{
 	/*forward the packet*/
+		printf("*** -> packet's ip destination is NOT my interface's ip \n");
 		sr_ip_hdr_t *ip_hdr = (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
 
 		/* Decrement TTL and check if TTL bigger than 0*/
 		ip_hdr->ip_ttl--;
 		if (ip_hdr->ip_ttl <= 0)
 		{
+			printf("*** -> packet TTL equals or smaller than 0 \n");
 			send_icmp_msg(sr, packet, len, (uint8_t)11, (uint8_t)0);
 			return;
 		}
