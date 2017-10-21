@@ -261,8 +261,10 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		/*send the ICMP packet*/
 		struct sr_arpentry *entry = sr_arpcache_lookup(&sr->cache, routetable->gw.s_addr);
 		if (entry == NULL)
+		{
 			printf("*** -> Sending ARP before send ICMP back");
 			queue_arp_request(sr, new_packet, new_len, sending_intf, routetable->gw.s_addr);
+		}
 		else
 			send_packet(sr, new_packet, new_len, sending_intf, entry);
 		
