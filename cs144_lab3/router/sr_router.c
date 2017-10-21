@@ -149,7 +149,9 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 		sr_ip_hdr_t *ip_hdr = (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
 
 		/* Decrement TTL and check if TTL bigger than 0*/
+		printf("*** -> Received packet of TTL %d \n", ip_hdr->ip_ttl);
 		ip_hdr->ip_ttl--;
+		printf("*** -> Received packet of TTL after decresing %d \n", ip_hdr->ip_ttl);
 		if (ip_hdr->ip_ttl <= 0)
 		{
 			printf("*** -> packet TTL equals or smaller than 0 \n");
