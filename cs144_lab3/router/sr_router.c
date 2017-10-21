@@ -185,7 +185,7 @@ void handle_ip_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len,
 
 /*send ICMP message*/
 void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, uint8_t type, uint8_t code){
-	/*sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *)packet*/
+	sr_ethernet_hdr_t *eth_hdr = (sr_ethernet_hdr_t *)packet*/
 	sr_ip_hdr_t *ip_hdr = (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
 	
 
@@ -231,7 +231,9 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 
 		/*init ethernet header*/
 		new_eth_hdr->ether_type = htons(ethertype_ip);
-		
+		memcpy(new_eth_hdr->ether_shost, interface->addr, ETHER_ADDR_LEN);
+		memcpy(new_eth_hdr->ether_dhost, eth_hdr->ether_shost, ETHER_ADDR_LEN);
+	
 		/* Init IP header*/
 		new_ip_hdr->ip_v = 4;
 		new_ip_hdr->ip_hl = sizeof(sr_ip_hdr_t) / 4; 
@@ -259,14 +261,16 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 		new_icmp_hdr->icmp_sum = cksum(new_icmp_hdr, sizeof(sr_icmp_t3_hdr_t));
 
 		/*send the ICMP packet*/
-		struct sr_arpentry *entry = sr_arpcache_lookup(&sr->cache, routetable->gw.s_addr);
+		sr_send_packet(sr, packet, len, interface->name);
+
+		/*struct sr_arpentry *entry = sr_arpcache_lookup(&sr->cache, routetable->gw.s_addr);
 		if (entry == NULL)
 		{
 			printf("*** -> Sending ARP before send ICMP back");
 			queue_arp_request(sr, new_packet, new_len, sending_intf, routetable->gw.s_addr);
 		}
 		else
-			send_packet(sr, new_packet, new_len, sending_intf, entry);
+			send_packet(sr, new_packet, new_len, sending_intf, entry);*/
 		
 	}
 
