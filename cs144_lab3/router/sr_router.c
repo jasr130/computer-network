@@ -261,7 +261,7 @@ void send_icmp_msg(struct sr_instance *sr, uint8_t *packet, unsigned int len, ui
 
 		/*send the ICMP packet*/
 		print_hdrs(packet, len);
-		print_hdrs(new_packet, new_length);
+		print_hdrs(new_packet, new_len);
 		sr_send_packet(sr, new_packet, new_len, interface);
 
 		/*struct sr_arpentry *entry = sr_arpcache_lookup(&sr->cache, routetable->gw.s_addr);
