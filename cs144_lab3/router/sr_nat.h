@@ -36,7 +36,7 @@ struct sr_nat_connection {
     uint32_t client_seq_num;
     uint32_t server_seq_num;
     time_t last_updated;
-  struct sr_nat_connection *next;}
+  struct sr_nat_connection *next;};
 typedef struct sr_nat_connection sr_nat_connection_t;
 
 struct sr_nat_mapping {
@@ -48,7 +48,7 @@ struct sr_nat_mapping {
   time_t last_updated; /* use to timeout mappings */
   struct sr_nat_connection *conns; /* list of connections. null for ICMP */
   struct sr_nat_mapping *next;
-}
+};
 typedef struct sr_nat_mapping sr_nat_mapping_t;
 
 struct sr_nat_syn_queue{
@@ -56,7 +56,7 @@ struct sr_nat_syn_queue{
     char *interface;
     time_t last_updated;
     struct sr_nat_syn_queue* next;
-}
+};
 typedef struct sr_nat_syn_queue sr_nat_syn_queue_t;
 
 struct sr_nat {
@@ -77,7 +77,7 @@ struct sr_nat {
   pthread_mutexattr_t attr;
   pthread_attr_t thread_attr;
   pthread_t thread;
-}
+};
 typedef struct sr_nat sr_nat_t;
 
 
