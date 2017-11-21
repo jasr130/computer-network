@@ -248,9 +248,9 @@ void nat_handle_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
                 /*locate icmp header*/
                 sr_nat_icmp_hdr_t *icmp_hdr = (sr_nat_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
                 /*find the mapping*/
-                mapping = sr_nat_lookup_internal(&(sr->nat), ip_hdr->ip_src, icmp_hdr->icmp_id, nat_mapping_icmp);
+                mapping = sr_nat_lookup_internal(sr->nat, ip_hdr->ip_src, icmp_hdr->icmp_id, nat_mapping_icmp);
                 if(!mapping){
-                    mapping = sr_nat_insert_mapping(&(sr->nat), ip_hdr->ip_src, icmp_hdr->icmp_id, nat_mapping_icmp);
+                    mapping = sr_nat_insert_mapping(sr->nat, ip_hdr->ip_src, icmp_hdr->icmp_id, nat_mapping_icmp);
                     mapping->ip_ext = ext_intf->ip;
                     mapping->last_updated = time(NULL);/*edit can delete*/
 
@@ -263,14 +263,14 @@ void nat_handle_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
                 /*locate the tcp header*/
                 sr_tcp_hdr_t *tcp_hdr = (sr_tcp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
                 /*find the mapping*/
-                mapping = sr_nat_lookup_internal(&(sr->nat), ip_hdr->ip_src, ntohs(tcp_hdr->source_port), nat_mapping_tcp);
+                mapping = sr_nat_lookup_internal(sr->nat, ip_hdr->ip_src, ntohs(tcp_hdr->source_port), nat_mapping_tcp);
                 if (!mapping){
-                    mapping = sr_nat_insert_mapping(&(sr->nat), ip_hdr->ip_src, ntohs(tcp_hdr->source_port), nat_mapping_tcp);
+                    mapping = sr_nat_insert_mapping(sr->nat, ip_hdr->ip_src, ntohs(tcp_hdr->source_port), nat_mapping_tcp);
                     mapping->ip_ext = ext_intf->ip;
                     mapping->last_updated = time(NULL);/*edit*/
                 }
                 /*get connection and check the state*/
-                nat_state_transfer_outbound(&(sr->nat), mapping, ip_hdr, tcp_hdr);
+                nat_state_transfer_outbound(sr->nat, mapping, ip_hdr, tcp_hdr);
 
                 /*translate tcp port*/
                  tcp_hdr->source_port = htons(mapping->aux_ext);
@@ -288,7 +288,7 @@ void nat_handle_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
             if(ip_hdr->ip_p == ip_protocol_icmp){
                 sr_nat_icmp_hdr_t *icmp_hdr = (sr_nat_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
 
-                mapping = sr_nat_lookup_external(&(sr->nat), icmp_hdr->icmp_id, nat_mapping_icmp);
+                mapping = sr_nat_lookup_external(sr->nat, icmp_hdr->icmp_id, nat_mapping_icmp);
                     if (!mapping)
                     {
                       /* no icmp mapping in list, drop the packet*/
@@ -307,12 +307,12 @@ void nat_handle_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
                         handle_icmp_error((uint8_t)3, (uint8_t)3, sr, packet, len, interface);
                         return;
                 }
-                 mapping = sr_nat_lookup_external(&(sr->nat), ntohs(tcp_hdr->destination_port), nat_mapping_tcp);
+                 mapping = sr_nat_lookup_external(sr->nat, ntohs(tcp_hdr->destination_port), nat_mapping_tcp);
                  if (!mapping){
                     /* no tcp mapping in list, drop the packet*/
                     return;
                 }
-                nat_state_transfer_inbound(&(sr->nat), mapping, ip_hdr, tcp_hdr);
+                nat_state_transfer_inbound(sr->nat, mapping, ip_hdr, tcp_hdr);
 
                 tcp_hdr->destination_port = htons(mapping->aux_int);
                 tcp_hdr->checksum = 0;
