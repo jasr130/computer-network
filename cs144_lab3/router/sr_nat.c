@@ -191,7 +191,7 @@ struct sr_nat_mapping *sr_nat_lookup_internal(struct sr_nat *nat,
     struct sr_nat_mapping *mapping_walker = nat->mappings;
     while (mapping_walker)
     {
-        if (mapping_walker->type == type && mapping_walker->aux_ext == aux_ext && mapping_walker->ip_int == ip_int)
+        if (mapping_walker->type == type && mapping_walker->aux_int == aux_int && mapping_walker->ip_int == ip_int)
         {
             break;
         }
@@ -333,7 +333,7 @@ void sr_nat_destroy_connection(struct sr_nat_mapping *Mapping, struct sr_nat_con
             break;
          }
          prev = con_walker;
-         con_walk = con_walker->next;
+         con_walker = con_walker->next;
       }
 
       free(connection);
