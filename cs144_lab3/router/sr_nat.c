@@ -1,9 +1,9 @@
-
+#include <stdlib.h>
+#include <stdio.h>
 #include <signal.h>
 #include <assert.h>
 #include "sr_nat.h"
 #include <unistd.h>
-#include "sr_protocol.h"
 #include "sr_router.h"
 #include "sr_utils.h"
 

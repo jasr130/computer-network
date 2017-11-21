@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include <pthread.h>
+#include "sr_protocol.h"
 
 typedef enum {
   nat_mapping_icmp,
