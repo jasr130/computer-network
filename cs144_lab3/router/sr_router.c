@@ -22,6 +22,7 @@
 #include "sr_protocol.h"
 #include "sr_arpcache.h"
 #include "sr_utils.h"
+#include "sr_nat.h"
 
 /*---------------------------------------------------------------------
  * Method: sr_init(void)
@@ -269,7 +270,7 @@ void nat_handle_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
                     mapping->last_updated = time(NULL);/*edit*/
                 }
                 /*get connection and check the state*/
-                nat_state_transfer_outbound(nat, mapping, ip_hdr, tcp_hdr);
+                nat_state_transfer_outbound(&(sr->nat), mapping, ip_hdr, tcp_hdr);
 
                 /*translate tcp port*/
                  tcp_hdr->source_port = htons(mapping->aux_ext);
@@ -285,7 +286,7 @@ void nat_handle_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
 	else{/*it's a inbound message*/
         if (sr_get_intf_ip(sr, ip_hdr->ip_dst)){/*it must be send to the router*/
             if(ip_hdr->ip_p == ip_protocol_icmp){
-                sr_icmp_hdr_t *icmp_hdr = (sr_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
+                sr_nat_icmp_hdr_t *icmp_hdr = (sr_nat_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
 
                 mapping = sr_nat_lookup_external(&(sr->nat), icmp_hdr->icmp_id, nat_mapping_icmp);
                     if (!mapping)
@@ -311,7 +312,7 @@ void nat_handle_packet(struct sr_instance *sr, uint8_t *packet, unsigned int len
                     /* no tcp mapping in list, drop the packet*/
                     return;
                 }
-                nat_state_transfer_inbound(nat, mapping, ip_hdr, tcp_hdr);
+                nat_state_transfer_inbound(&(sr->nat), mapping, ip_hdr, tcp_hdr);
 
                 tcp_hdr->destination_port = htons(mapping->aux_int);
                 tcp_hdr->checksum = 0;
