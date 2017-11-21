@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "sr_router.h"
 #include "sr_utils.h"
+#include <string.h>
 
 int sr_nat_init(struct sr_nat *nat) { /* Initializes the nat */
 
@@ -170,7 +171,7 @@ struct sr_nat_mapping *sr_nat_lookup_external(struct sr_nat *nat,
         }
         mapping_walker = mapping_walker->next;
     }
-    copy = (sr_nat_mapping_t *)malloc(sizeof(sr_nat_mapping_t));
+    copy = (struct sr_nat_mapping *)malloc(sizeof(sr_nat_mapping_t));
     memcpy(copy, mapping_walker, sizeof(sr_nat_mapping_t));
 
 
@@ -196,7 +197,7 @@ struct sr_nat_mapping *sr_nat_lookup_internal(struct sr_nat *nat,
         }
         mapping_walker = mapping_walker->next;
     }
-    copy = (sr_nat_mapping_t *)malloc(sizeof(sr_nat_mapping_t));
+    copy = (struct sr_nat_mapping *)malloc(sizeof(sr_nat_mapping_t));
     memcpy(copy, mapping_walker, sizeof(sr_nat_mapping_t));
 
 
@@ -215,7 +216,7 @@ struct sr_nat_mapping *sr_nat_insert_mapping(struct sr_nat *nat,
     /* handle insert here, create a mapping, and then return a copy of it */
     struct sr_nat_mapping *mapping = NULL;
     struct sr_nat_mapping *new_mapping = NULL;
-    new_mapping = ( sr_nat_mapping_t *)malloc(sizeof(sr_nat_mapping_t));
+    new_mapping = ( struct sr_nat_mapping *)malloc(sizeof(sr_nat_mapping_t));
     /*allocate port number to new mapping*/
      if(type == nat_mapping_icmp){
             new_mapping->aux_ext = nat->icmp_identifier_number;
@@ -264,7 +265,7 @@ void sr_nat_delete_mapping(struct sr_nat *nat, struct sr_nat_mapping *Mapping)
                prev->next = mapwalker->next;
             }
             else{
-                nat->mappings = mapwalker->next
+                nat->mappings = mapwalker->next;
             }
             break;
          }
