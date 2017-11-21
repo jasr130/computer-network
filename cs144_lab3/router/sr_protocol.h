@@ -83,11 +83,20 @@ struct sr_icmp_hdr {
   uint8_t icmp_type;
   uint8_t icmp_code;
   uint16_t icmp_sum;
-  
+
 } __attribute__ ((packed)) ;
 typedef struct sr_icmp_hdr sr_icmp_hdr_t;
 
-
+/*structure of a imcp header used in ant mod
+*/
+struct sr_nat_icmp_hdr {
+  uint8_t icmp_type;
+  uint8_t icmp_code;
+  uint16_t icmp_sum;
+  uint16_t icmp_id;
+  uint16_t icmp_seq;
+} __attribute__ ((packed)) ;
+typedef struct sr_nat_icmp_hdr sr_nat_icmp_hdr_t;
 /* Structure of a type3 ICMP header
  */
 struct sr_icmp_t3_hdr {
@@ -116,8 +125,8 @@ struct sr_ip_hdr
     unsigned int ip_v:4;		/* version */
     unsigned int ip_hl:4;		/* header length */
 #else
-#error "Byte ordering ot specified " 
-#endif 
+#error "Byte ordering ot specified "
+#endif
     uint8_t ip_tos;			/* type of service */
     uint16_t ip_len;			/* total length */
     uint16_t ip_id;			/* identification */
@@ -133,7 +142,7 @@ struct sr_ip_hdr
   } __attribute__ ((packed)) ;
 typedef struct sr_ip_hdr sr_ip_hdr_t;
 
-/* 
+/*
  *  Ethernet packet header prototype.  Too many O/S's define this differently.
  *  Easy enough to solve that and define it here.
  */
@@ -148,10 +157,54 @@ struct sr_ethernet_hdr
 } __attribute__ ((packed)) ;
 typedef struct sr_ethernet_hdr sr_ethernet_hdr_t;
 
+/*custom: tcp header*/
+struct sr_tcp_hdr
+{
+    uint16_t source_port;
+    uint16_t destination_port;
+    uint32_t seq_num;
+    uint32_t ack_num;
+    uint8_t offset;
+
+    #if __BYTE_ORDER == __BIG_ENDIAN
+    unsigned int res : 2; /*reserved 2 bit, don't use in this assignment*/
+    unsigned int urg : 1;
+    unsigned int ack : 1;
+    unsigned int psh : 1;
+    unsigned int rst : 1;
+    unsigned int syn : 1;
+    unsigned int fin : 1;
+    #elif __BYTE_ORDER == __LITTLE_ENDIAN
+    unsigned int fin : 1;
+    unsigned int syn : 1;
+    unsigned int rst : 1;
+    unsigned int psh : 1;
+    unsigned int ack : 1;
+    unsigned int urg : 1;
+    unsigned int res : 2;
+    #endif
+
+
+    uint16_t window_size;
+    uint16_t checksum;
+    uint16_t urgentpointer;
+} __attribute__((packed));
+typedef struct sr_tcp_hdr sr_tcp_hdr_t;
+
+struct sr_tcp_pseudo_hdr
+{
+    uint32_t ip_src;
+    uint32_t ip_dst;
+    uint8_t reserved;
+    uint8_t ip_p;
+    uint16_t tcp_len;
+} __attribute__((packed));
+typedef struct sr_tcp_pseudo_hdr sr_tcp_pseudo_hdr_t;
 
 
 enum sr_ip_protocol {
-  ip_protocol_icmp = 0x0001,
+  ip_protocol_icmp = 1,
+  ip_protocol_tcp = 6,
 };
 
 enum sr_ethertype {

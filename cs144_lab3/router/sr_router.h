@@ -15,6 +15,7 @@
 
 #include "sr_protocol.h"
 #include "sr_arpcache.h"
+#include "sr_nat.h"
 
 /* we dont like this debug , but what to do for varargs ? */
 #ifdef _DEBUG_
@@ -45,7 +46,7 @@ struct sr_instance
 {
     int  sockfd;   /* socket to server */
     char user[32]; /* user name */
-    char host[32]; /* host name */ 
+    char host[32]; /* host name */
     char template[30]; /* template name if any */
     unsigned short topo_id;
     struct sockaddr_in sr_addr; /* address to server */
@@ -54,6 +55,8 @@ struct sr_instance
     struct sr_arpcache cache;   /* ARP cache */
     pthread_attr_t attr;
     FILE* logfile;
+
+    struct sr_nat* nat;
 };
 
 /* -- sr_main.c -- */
@@ -69,15 +72,17 @@ void sr_init(struct sr_instance* );
 void sr_handlepacket(struct sr_instance* , uint8_t * , unsigned int , char* );
 
 /*new */
-void send_packet(struct sr_instance *, uint8_t *, unsigned int, struct sr_if *, struct sr_arpentry *);
+void set_eth_send_packet(struct sr_instance *, uint8_t *, unsigned int, struct sr_if *, struct sr_arpentry *);
 void queue_arp_request(struct sr_instance *, uint8_t *, unsigned int, struct sr_if *, uint32_t);
-void send_icmp_msg(struct sr_instance *, uint8_t *, unsigned int, uint8_t, uint8_t, char *);
+void handle_icmp_error(uint8_t, uint8_t, struct sr_instance *, uint8_t *, unsigned int, char *);
+void icmp_echo_reply(struct sr_instance *, uint8_t *, unsigned int, char *);
 void handle_ip_packet(struct sr_instance *, uint8_t *, unsigned int, char *);
 void handle_arp_packet(struct sr_instance *, uint8_t *, unsigned int, char *);
 struct sr_rt *matching_prefix_ip(struct sr_instance *, uint32_t);
 int sr_get_intf_ip(struct sr_instance*, uint32_t);
 void handle_arpreq(struct sr_instance *, struct sr_arpreq *);
-
+void clean_req(struct sr_instance *, uint8_t *, struct sr_arpreq *, unsigned int, struct sr_if *);
+void nat_handle_packet(struct sr_instance *, uint8_t *, unsigned int , char *);
 /* -- sr_if.c -- */
 void sr_add_interface(struct sr_instance* , const char* );
 void sr_set_ether_ip(struct sr_instance* , uint32_t );

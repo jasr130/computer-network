@@ -66,10 +66,14 @@ int main(int argc, char **argv)
     unsigned int topo = DEFAULT_TOPO;
     char *logfile = 0;
     struct sr_instance sr;
+    int icmp_query_timeout = 60;
+    int tcp_established_idle_timeout = 7440;
+    int tcp_transitory_idle_timeout = 300;
+    int nat_mode = 0;
 
     printf("Using %s\n", VERSION_INFO);
 
-    while ((c = getopt(argc, argv, "hs:v:p:u:t:r:l:T:")) != EOF)
+    while ((c = getopt(argc, argv, "nI:E:R:hs:v:p:u:t:r:l:T:")) != EOF)
     {
         switch (c)
         {
@@ -101,6 +105,19 @@ int main(int argc, char **argv)
             case 'T':
                 template = optarg;
                 break;
+            case 'n':
+                nat_mode = 1;
+                break;
+            case 'I':
+                icmp_query_timeout = atoi(optarg);
+                break;
+            case 'E':
+                tcp_established_idle_timeout = atoi(optarg);
+                break;
+            case 'R':
+                tcp_transitory_idle_timeout = atoi(optarg);
+                break;
+
         } /* switch */
     } /* -- while -- */
 
@@ -154,6 +171,19 @@ int main(int argc, char **argv)
     else {
       /* Read from specified routing table */
       sr_load_rt_wrap(&sr, rtable);
+    }
+
+    /*init nat setting*/
+    if(nat_mode){
+        sr.nat = malloc(sizeof(sr_nat_t));
+        sr_nat_init(sr.nat);
+
+        sr.nat->sr = &sr;
+        sr.nat->icmp_query_timeout = icmp_query_timeout;
+        sr.nat->tcp_established_idle_timeout= tcp_established_idle_timeout;
+        sr.nat->tcp_transitory_idle_timeout = tcp_transitory_idle_timeout;
+    }else{
+        sr.nat = NULL;
     }
 
     /* call router init (for arp subsystem etc.) */
